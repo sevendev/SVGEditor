@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<window:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	implements="component.InfoPanel" 
+	xmlns:form="component.form.*"
+	xmlns:window="component.custom.window.*"
+	xmlns:preloader="component.custom.preloader.*"
+	horizontalAlign="center" 
+	paddingBottom="10"
+	width="480" 
+	height="380" 
+	title="@Resource(key='Help', bundle='Panel')" 
+	resize="positionLoader()"
+	>
+		
+	<mx:Metadata>
+		[Event(name="onClose", type="event.InfoPanelEvent")]
+	</mx:Metadata>
+		
+	<mx:Script><![CDATA[
+		
+		import mx.core.Application;
+		import flash.net.*;
+		import flash.events.Event;
+		import mx.events.ItemClickEvent;
+		import event.InfoPanelEvent;
+		import flash.system.Capabilities;
+		
+		[Bindable]
+		public var langData:Array = [	{ label:"日本語" , data:"jpn" } , 
+										{ label:"English" , data:"eng" }];
+		
+		private function loadString( lang:String ):void 
+		{
+			var rootPath:String = Application.application.approot  ? Application.application.approot : "" ;
+			var stringFileName:String =  ( lang == "jpn" ) ? EditorConstants.HELP_STRING_JPN : EditorConstants.HELP_STRING_ENG;
+			var stringURL:String = rootPath + EditorConstants.STRING_PATH + "/" + stringFileName;
+			var loader:URLLoader = new URLLoader( new URLRequest( stringURL ) );
+			loader.addEventListener( Event.COMPLETE , function( e:Event ):void {
+				helpText.htmlText = loader.data.toString();
+				hideLoader();
+			});
+			showLoader();
+		}
+		
+		private function getLocalLang():String {
+			return ( Capabilities.language == "ja" ) ? "jpn" : "eng" ;
+		}
+		
+		private function onLangChange( e:ItemClickEvent ):void 
+		{
+			vs.selectedChild = helpBox;
+			loadString( e.item.data );
+		}
+		
+		private function showContact():void 
+		{
+			vs.selectedChild = contactBox;
+		}
+		
+		private function onClose():void 
+		{
+			dispatchEvent( new InfoPanelEvent( InfoPanelEvent.ON_CLOSE ) );
+		}
+		
+		private function locateGallery():void
+		{
+			var url:String = Application.application.approot + EditorConstants.GALLERY_PATH;
+			navigateToURL( new URLRequest( url ) , "_self" );
+		}
+		
+		private function showLoader():void
+		{
+			pr.visible = true;
+			positionLoader();
+		}
+		
+		private function hideLoader():void
+		{
+			pr.visible = false;
+		}
+		
+		private function positionLoader():void
+		{
+			if( pr.visible ) pr.move( this.width / 2 - pr.measuredWidth / 2 , this.height /2 - pr.measuredHeight /2 );
+		}
+	
+	]]></mx:Script>
+	
+	<mx:HBox width="100%">
+		<mx:LinkBar id="urlLinkBar" width="100%" dataProvider="{langData}" itemClick="onLangChange(event)" />
+		<mx:Spacer width="100%" />
+		<mx:LinkButton label="@Resource(key='Contact', bundle='Panel')" click="showContact();" />
+		<mx:Button label="@Resource(key='Gallery', bundle='Panel')" styleName="gallery" click="locateGallery();" />
+	</mx:HBox>
+	
+	<mx:ViewStack id="vs" width="100%" height="100%">
+		
+		<mx:Box id="helpBox" width="100%" height="100%">
+			<mx:TextArea id="helpText" width="100%" height="100%" borderColor="0xeeeeee" creationComplete="loadString( getLocalLang() )" />
+		</mx:Box>
+		
+		<form:ContactForm id="contactBox" width="100%" height="100%"/>
+		
+	</mx:ViewStack>
+	
+	<mx:Button label="@Resource(key='Close', bundle='Panel')" click="onClose()" />
+	
+	<preloader:LoadingBar id="pr" visible="false" includeInLayout="false" />
+	
+</window:ResizableTitleWindow>

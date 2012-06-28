@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	implements="component.InfoPanel" 
+	title="@Resource(key='NewDocument', bundle='Panel')">
+		
+	<mx:Metadata>
+		[Event(name="onCreate", type="event.InfoPanelEvent")]
+		[Event(name="onClose", type="event.InfoPanelEvent")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+		
+	import event.InfoPanelEvent;
+		
+	public static const DEFAULT_WIDTH:Number = 800;
+	public static const DEFAULT_HEIGHT:Number = 600;
+	
+	private function create():void
+	{
+		var evt:InfoPanelEvent = new InfoPanelEvent( InfoPanelEvent.ON_CREATE );
+		evt.documentWidth = widthNum.value;
+		evt.documentHeight = HeightNum.value;
+		dispatchEvent( evt );
+	}
+	
+	private function close():void 
+	{
+		dispatchEvent( new InfoPanelEvent( InfoPanelEvent.ON_CLOSE ) );
+	}
+		
+		
+	]]></mx:Script>
+
+	<mx:Form>
+		<mx:FormItem label="@Resource(key='Width', bundle='Panel')">
+			<mx:NumericStepper 
+				id="widthNum"
+				minimum="100" 
+				maximum="1000" 
+				value="{DEFAULT_WIDTH}" 
+			/>
+		</mx:FormItem>
+		
+		<mx:FormItem label="@Resource(key='Height', bundle='Panel')">
+			<mx:NumericStepper 
+				id="HeightNum"
+				minimum="100" 
+				maximum="1000" 
+				value="{DEFAULT_HEIGHT}" 
+			/>
+		</mx:FormItem>
+	</mx:Form>
+	
+	<mx:HBox>
+		<mx:Button label="@Resource(key='OK', bundle='Panel')" click="create()" />
+		<mx:Button label="@Resource(key='Cancel', bundle='Panel')" click="close()" />
+	</mx:HBox>
+	
+	
+</mx:TitleWindow>

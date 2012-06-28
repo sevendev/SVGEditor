@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Metadata>
+		[Event(name="load", type="event.ServiceEvent")]
+        [Event(name="save", type="event.ServiceEvent")]
+		[Event(name="failed", type="event.ServiceEvent")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+	
+	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
+	import flash.events.Event;
+	import event.ServiceEvent;
+	
+	private var _path:String;
+		
+	public function showLoadDialog():void 
+	{
+		try
+		{
+			var file:File = getFile();
+			file.browseForOpen	("Select SVG File.");
+			file.addEventListener( Event.SELECT , function( e:Event ):void 
+			{
+				var target:File = e.target as File;
+				var stream:FileStream = new FileStream();
+				stream.open( target , FileMode.READ );
+				var result:String = stream.readUTFBytes(stream.bytesAvailable);
+				onLoadResult( result );
+				_path = target.url;
+			});
+		}catch (e:Error) 
+		{ 
+			onFault( e.message );
+		}
+	}
+		
+	public function showSaveDialog( saveData:String ):void 
+	{
+		try
+		{
+			var file:File = getFile();
+			file.browseForSave	("Save SVG File.");
+			file.addEventListener( Event.SELECT , function( e:Event ):void 
+			{
+				var target:File = e.target as File;
+				var stream:FileStream = new FileStream();   
+				stream.open( target , FileMode.WRITE );
+				stream.writeUTFBytes( saveData );
+				stream.close();
+				onSaveResult( "Success" );
+				_path = target.url;
+			});
+		}catch (e:Error) 
+		{ 
+			onFault( e.message );
+		}
+	}	
+	
+	private function getFile():File 
+	{
+		return ( _path == null ) ? File.desktopDirectory :  new File( _path );
+	}
+	
+	//Load Result
+	private function onLoadResult( result:String ):void
+	{
+		var evt:ServiceEvent = new ServiceEvent( ServiceEvent.LOAD );
+		evt.result = result;
+		dispatchEvent( evt );
+	}
+	
+	
+	private function onFault( message:String= "" ):void
+	{
+		var evt:ServiceEvent = new ServiceEvent( ServiceEvent.FAILED );
+		evt.message = "Load Failed : " + message;
+		dispatchEvent( evt );
+	}
+
+	//Save Result
+	private function onSaveResult( result:String ):void
+	{
+		var evt:ServiceEvent = new ServiceEvent( ServiceEvent.SAVE );
+		evt.result = result;
+		dispatchEvent( evt );
+	}	
+	
+	public function load( url:String ):void {}
+	public function save( title:String , svg:XML ):void {}
+	
+		
+	]]></mx:Script>
+	
+	
+</mx:Box>

@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="init()" 
+	removedFromStage="onRemove()"
+	verticalGap="0"
+	>
+		
+	<mx:Metadata>
+		[Event(name="itemClick", type="mx.events.ItemClickEvent")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+	
+	import flash.events.Event;
+	import flash.geom.Point;
+	import mx.events.ListEvent;
+	import mx.events.ItemClickEvent;
+	import mx.controls.List;
+	import mx.core.UIComponent;
+
+	[Bindable]
+	private var _currentData:Array;
+	private var _dataProvider:Array;
+	private var _currentItem:String;
+	
+	public function get dataProvider():Array { return _dataProvider; }
+	public function set dataProvider(value:Array):void { _dataProvider = value; }	
+	
+	public function get currentItem():String { return _currentItem; }
+	public function set currentItem(value:String):void 
+	{ 
+		_currentItem = value;
+		input.text = _currentItem;
+	}
+	
+	private function init():void 
+	{
+		this.removeChild( lst );
+		this.parent.addChild( lst );
+	}
+	
+	private function onRemove():void 
+	{
+		if ( this.parent.contains( lst ) && !this.contains( lst ) )
+			this.parent.removeChild( lst );
+	}
+			
+	private function onTextChange( e:Event):void
+	{
+		lst.visible = searchStrings();
+	}
+	
+	private function onItemSelect( e:ListEvent ):void 
+	{
+		_currentItem = List( e.target ).selectedItem as String ;
+		input.text = _currentItem;
+		lst.visible = false;
+		
+		var ev:ItemClickEvent = new ItemClickEvent( ItemClickEvent.ITEM_CLICK );
+		ev.index = 0;
+		ev.label = _currentItem;
+		dispatchEvent( ev );
+	}
+	
+	private function onShowMenu():void 
+	{
+		var reg:Point = new Point( input.x , input.y + input.height );
+		reg = UIComponent( this.parent ).globalToContent ( this.contentToGlobal( reg ) );
+		lst.x = reg.x;
+		lst.y = reg.y;
+	}
+	
+	private function searchStrings():Boolean 
+	{
+		_currentData = [];
+		var str:String = input.text;
+		if ( str == "" ) return false;
+		_currentData = _dataProvider.filter( function(element:String, index:int, arr:Array):Boolean {
+			return ( element.toLowerCase().indexOf( str.toLowerCase() , 0 ) == 0 );
+		});
+		return ( _currentData.length > 0 );
+	}
+	
+	]]></mx:Script>
+	
+		<mx:TextInput 
+			id="input" 
+			change="onTextChange(event)" 
+			width="100%"
+		/>
+		
+		<mx:List 
+			id="lst" 
+			width="{input.width}" 
+			includeInLayout="false" 
+			visible="false" 
+			dataProvider="{_currentData}" 
+			itemClick="onItemSelect( event )" 
+			show="onShowMenu()"
+		/>
+		
+</mx:VBox>

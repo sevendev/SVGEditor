@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:comp="component.*" 
+	implements="component.StylePanel" 
+	styleName="stylePanel"
+	title="@Resource(key='Image', bundle='Panel')" >
+		
+	<mx:Metadata>
+        [Event(name="styleChange", type="event.StyleChangeEvent")]
+	</mx:Metadata>
+		
+	<mx:Script><![CDATA[
+		
+		import mx.events.ColorPickerEvent;
+		import event.StyleChangeEvent;
+		import svgeditor.parser.filters.GaussianBlur;
+		import svgeditor.parser.filters.IFilter;
+		import svgeditor.parser.style.Style;
+		import svgeditor.StyleObject;
+		import component.vo.StyleVo;
+		
+		[Bindable]
+		private var styleVo:StyleVo = new StyleVo();
+		
+		public function setItemStyle( o:StyleObject ):void
+		{
+			itemName.text = o.id;
+			styleVo.alphaValue = o.opacity;
+			styleVo.blurValue = o.blur;
+			styleVo.href = o.href;
+		}
+		
+		public function setItemType( t:String ):void { }
+		
+		private function onNameChange( e:Event ):void 
+		{
+			var o:StyleObject = new StyleObject();
+			o.id = itemName.text;
+			dispatchEvent( new StyleChangeEvent( o ) );
+		}
+		
+		private function onImageChanged():void 
+		{
+			var o:StyleObject = new StyleObject();
+			o.href = hrefText.text;
+			dispatchEvent( new StyleChangeEvent( o ) );
+		}
+		
+	]]></mx:Script>
+	
+	<mx:TextInput id="itemName" width="100%" change="onNameChange( event );" />
+	
+	<mx:TabNavigator id="tn" width="100%" height="300" color="0x323232">
+	
+		<mx:VBox id="imageBox" label="Image" >
+			<mx:Label text="URL" />
+			<mx:TextArea 
+				id="hrefText" 
+				width="100%" 
+				height="100"
+				text="{styleVo.href}" 
+			/>
+			<mx:Button label="@Resource(key='Load', bundle='Panel')" click="onImageChanged()" />
+		</mx:VBox>
+		
+		<comp:PropertyPanel 
+			id="transBox" 
+			label="Prop" 
+			alphaValue="{styleVo.alphaValue}" 
+			blurValue="{styleVo.blurValue}"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+		/>
+		
+	</mx:TabNavigator>
+</mx:TitleWindow>

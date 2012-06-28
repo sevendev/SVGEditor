@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()">
+	
+	<mx:Metadata>
+        [Event(name="change", type="mx.events.ColorPickerEvent")]
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import component.color.ColorWheel;
+			import component.color.ColorMatrix;
+			import mx.controls.Image;
+			import mx.containers.Canvas;
+			import mx.events.ColorPickerEvent;
+			
+			public var color:uint;
+
+			private var colorWheel:ColorWheel;
+			private var bmd:BitmapData;
+			private var cm:ColorMatrix;
+			private var radius:Number;
+			private var _rgbValue:String;
+
+			private var cMatrix:ColorMatrix;
+			
+			public function get rgbValue():uint { return uint( "0x" + _rgbValue ); }
+			public function set rgbValue( c:uint ):void 
+			{
+				colorValue.text = _rgbValue = rgbToHex( c );
+			}
+			
+			private function draw():void
+			{
+				if (!colorWheel)
+					return;
+				radius = colorWheelHolder.width /2;
+				colorWheel.graphics.clear();
+				colorWheel.draw(radius)
+				bmd = new BitmapData(colorWheel.width, colorWheel.height);
+				bmd.draw(colorWheel);
+			}
+			
+			private function init():void
+			{
+				colorWheel = new ColorWheel();
+				colorWheelHolder.rawChildren.addChild(colorWheel);
+				draw();
+				colorWheel.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+				colorWheel.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+				cMatrix= new ColorMatrix();
+			}
+			
+			private function mouseDownHandler(event:MouseEvent):void
+			{
+				processEvent(event);
+			}
+			
+			private function mouseMoveHandler(event:MouseEvent):void
+			{
+				if (!event.buttonDown)
+					return;
+				processEvent(event);
+			}
+			
+			private function processEvent(event:MouseEvent):void
+			{
+				var x:Number = event.localX;
+				var y:Number = event.localY;
+				getColor(x, y);
+				colorPointer.move(x + colorPointer.width / 2, 
+					y + colorPointer.height / 2);
+			}
+			
+			private function reset():void
+			{
+				colorBox.setStyle("backgroundColor", null);
+				colorValue.text = "";
+				saturationSl.value = 1;
+			}
+
+			private function getColor(x:Number, y:Number):void
+			{
+				var color:Number = bmd.getPixel(x, y);
+				if (!atArea(x, y))
+					return;
+				cm = new ColorMatrix();
+				cm.colorize(color);
+				cm.adjustSaturation(saturationSl.value);
+				
+				colorBox.setStyle("backgroundColor", color);
+				colorValue.text = _rgbValue = rgbToHex(color);
+				
+				var cEvent:ColorPickerEvent = new ColorPickerEvent( ColorPickerEvent.CHANGE  );
+				cEvent.color = rgbValue;
+				dispatchEvent( cEvent );
+			}
+
+			private function saturation():void
+			{
+				var c:ColorMatrix = new ColorMatrix();
+				c.adjustSaturation(saturationSl.value);
+				c.adjustBrightness(brightnessSl.value);
+				colorWheel.filters = [c.filter];
+				bmd = new BitmapData(colorWheel.width, colorWheel.height);
+				bmd.draw(colorWheel);
+				getColor(colorPointer.x, colorPointer.y);
+				
+			}
+
+			private function rgbToHex(value:uint):String {
+				var str:String = value.toString(16).toUpperCase();
+				str = String("000000" + str).substr(-6);
+				return str;
+			}
+
+			private function atArea(_x:Number, _y:Number):Boolean
+			{
+				var x:Number = _x - radius;
+				var y:Number = _y - radius;
+				var xy:Number = Math.sqrt(x * x + y * y);
+				if (xy < radius) 
+					return true;
+				else
+					return false;
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas
+		id="colorWheelHolder"
+		width="100%"
+		height="{colorWheelHolder.width}"
+		resize="draw()"
+	/>
+	<mx:Canvas
+		id="colorPointer"
+		width="4"
+		height="4"
+		borderStyle="solid"
+		borderColor="#363636"
+		mouseEnabled="false"
+	/>
+	<mx:HBox
+		width="100%"
+		horizontalAlign="center"
+		verticalAlign="middle"
+		horizontalGap="0"
+	>
+		<mx:Canvas
+			id="colorBox"
+			width="100%"
+			height="20"
+			borderStyle="solid"
+			cornerRadius="8"
+		 />
+		<mx:Label
+			text="#"
+			id="colorNumberLabel"
+			color="#363636"
+		/>
+		<mx:TextInput
+			width="100%"
+			id="colorValue"
+		 	borderStyle="solid"
+		 	cornerRadius="8"
+		/>
+	</mx:HBox>
+
+	<mx:HSlider
+		minimum="0"
+		maximum="2"
+		snapInterval="0.01"
+		width="{colorWheelHolder.width}"
+		change="saturation()"
+		id="saturationSl"
+		liveDragging="true"
+		tickInterval="0.5"
+		value="1"
+	/>
+	<mx:HSlider
+		minimum="-100"
+		maximum="0"
+		snapInterval="1"
+		width="{colorWheelHolder.width}"
+		change="saturation()"
+		id="brightnessSl"
+		liveDragging="true"
+		tickInterval="25"
+		value="0"
+	/>
+	
+</mx:VBox>

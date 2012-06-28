@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" visible="false" includeInLayout="false" >
+	
+	<mx:Metadata>
+		[Event(name="load", type="event.ServiceEvent")]
+        [Event(name="save", type="event.ServiceEvent")]
+		[Event(name="failed", type="event.ServiceEvent")]
+	</mx:Metadata>
+	
+	
+	<mx:Script><![CDATA[
+		
+		import flash.net.URLLoader;
+		import flash.net.URLRequest;
+		import flash.events.Event;
+		import flash.events.IOErrorEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.rpc.events.FaultEvent;
+		import mx.core.Application;
+		import event.ServiceEvent;
+		
+		private var loader:URLLoader;
+		
+		[Bindable]
+		private var postURL:String;
+		
+		//Load
+		public function load( url:String ):void 
+		{
+			loader = new URLLoader( new URLRequest( url ) );
+			loader.addEventListener( Event.COMPLETE , onLoadResult);
+			loader.addEventListener( IOErrorEvent.IO_ERROR , onLoadFault );
+		}
+			
+		//Save
+		public function save( title:String , svg:XML ):void 
+		{
+			postURL = Application.application.approot + EditorConstants.DATA_POST_PATH;
+			saveSvc.send( { "data[title]": title , "data[xml]": svg } );
+		}
+		
+		//Load Result
+		private function onLoadResult( e:Event ):void
+		{
+			var evt:ServiceEvent = new ServiceEvent( ServiceEvent.LOAD );
+			evt.result = loader.data;
+			dispatchEvent( evt );
+		}
+		
+		private function onLoadFault( e:IOErrorEvent ):void
+		{
+			var evt:ServiceEvent = new ServiceEvent( ServiceEvent.FAILED );
+			evt.message = e.text;
+			dispatchEvent( evt );
+		}
+		
+		//Save Result
+		private function onSaveResult( e:ResultEvent ):void
+		{
+			var evt:ServiceEvent = new ServiceEvent( ServiceEvent.SAVE );
+			evt.result = e.result;
+			dispatchEvent( evt );
+		}
+		
+		private function onFault( e:FaultEvent ):void
+		{
+			var evt:ServiceEvent = new ServiceEvent( ServiceEvent.FAILED );
+			evt.message = e.message.toString();
+			dispatchEvent( evt );
+		}
+		
+	]]></mx:Script>
+	
+	<mx:HTTPService id="saveSvc" url="{postURL}" method="POST" resultFormat="text" result="onSaveResult( event )" fault="onFault( event ) " />
+	
+</mx:Box>

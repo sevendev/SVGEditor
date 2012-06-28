@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:comp="component.*" 
+	xmlns:color="component.color.*" 
+	xmlns:input="component.input.*"
+	implements="component.StylePanel" 
+	styleName="stylePanel" 
+	width="220"
+	title="@Resource(key='Text', bundle='Panel')" >
+		
+	<mx:Metadata>
+        [Event(name="styleChange", type="event.StyleChangeEvent")]
+	</mx:Metadata>
+		
+	<mx:Script><![CDATA[
+		
+		import flash.events.Event;
+		import flash.text.Font;
+		import mx.events.ColorPickerEvent;
+		import mx.events.NumericStepperEvent;
+		import mx.events.ItemClickEvent;
+		import event.StyleChangeEvent;
+		import svgeditor.parser.style.Style;
+		import component.vo.StyleVo;
+		import svgeditor.StyleObject;
+		
+		[Bindable]
+		private var styleVo:StyleVo = new StyleVo();
+		
+		public function setItemStyle( o:StyleObject ):void 
+		{
+			itemName.text = o.id;
+			styleVo.textColorValue = o.fillColor;
+			styleVo.fontSizeValue = o.font_size;
+			styleVo.letterSpacingValue = o.letter_spacing;
+			styleVo.alphaValue = o.opacity;
+			styleVo.blurValue = o.blur;
+			
+			fontListMenu.currentItem = o.font_family;
+			fontListMenu.dataProvider = getAvailableFonts();
+		}
+		
+		public function setItemType( t:String ):void { }
+		
+		private function getAvailableFonts():Array 
+		{
+			var names:Array = [];
+			var fonts:Array = Font.enumerateFonts( true );
+			 for each (var font:Font in fonts) 
+					names.push(font.fontName);
+			return names;
+		}
+		
+		private function onNameChange( e:Event ):void 
+		{
+			var o:StyleObject = new StyleObject();
+			o.id = itemName.text;
+			dispatchEvent( new StyleChangeEvent( o ) );
+		}
+		
+		private function onTextColorChange( e:ColorPickerEvent ):void
+		{
+			var o:StyleObject = new StyleObject();
+			o.fillColor = e.color;
+			dispatchEvent(  new StyleChangeEvent( o ) );
+		}
+		
+		private function onFontSizeChange( e:NumericStepperEvent ):void
+		{
+			var o:StyleObject = new StyleObject();
+			o.font_size = e.value;
+			dispatchEvent( new StyleChangeEvent( o ) )
+		}
+		
+		private function onLetterSpacingChange( e:NumericStepperEvent ):void
+		{
+			var o:StyleObject = new StyleObject();
+			o.letter_spacing = e.value;
+			dispatchEvent( new StyleChangeEvent( o ) )
+		}
+		
+		private function onFontFamilyChange( e:ItemClickEvent ):void
+		{
+			var o:StyleObject = new StyleObject();
+			o.font_family = e.label;
+			dispatchEvent( new StyleChangeEvent( o ) )
+		}
+		
+		
+	]]></mx:Script>
+	
+	<mx:TextInput id="itemName" width="100%" change="onNameChange( event );" />
+	
+	<mx:TabNavigator id="tn" width="100%" height="450" color="0x323232">
+		
+		<mx:VBox id="TextBox" label="Text">
+
+			<mx:Label text="Font" />
+			<input:InputSuggest 
+				id="fontListMenu"
+				itemClick="onFontFamilyChange( event )" 
+				width="100%" 
+			/>
+			
+			<mx:Form>
+				<mx:FormItem label="@Resource(key='Size', bundle='Panel')">
+					<mx:NumericStepper 
+						id="fontSizeNs"
+						minimum="1" 
+						maximum="200" 
+						value="{styleVo.fontSizeValue}" 
+						change="onFontSizeChange( event )"
+					/>
+				</mx:FormItem>
+				
+				<mx:FormItem label="@Resource(key='Spacing', bundle='Panel')">
+					<mx:NumericStepper 
+						id="letterSpacingNs"
+						minimum="-10" 
+						maximum="10" 
+						stepSize=".1"
+						value="{styleVo.letterSpacingValue}" 
+						change="onLetterSpacingChange( event )"
+					/>
+				</mx:FormItem>
+			</mx:Form>
+			
+		</mx:VBox>
+		
+		<mx:VBox id="ColorBox" label="Color" >
+			<color:ColorWheelSet id="fillColor" 
+				rgbValue="{styleVo.textColorValue}" 
+				change="onTextColorChange(event);" 
+			/>
+		</mx:VBox>
+		
+		<comp:PropertyPanel 
+			id="transBox" 
+			label="Prop" 
+			alphaValue="{styleVo.alphaValue}"
+			blurValue="{styleVo.blurValue}"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+		/>
+		
+	</mx:TabNavigator>
+	
+</mx:TitleWindow>

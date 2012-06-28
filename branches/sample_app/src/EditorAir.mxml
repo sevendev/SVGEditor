@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:service="service.*"
+	xmlns:button="component.button.*"
+	xmlns:loader="component.preloader.*"
+	layout="absolute" 
+	preloader="component.preloader.WhitePreLoader" 
+	applicationComplete="init()"
+	backgroundGradientColors="[0xffffff, 0xffffff]">
+		
+	<mx:Metadata>
+    	[ResourceBundle("App")]
+    </mx:Metadata>
+
+	<mx:Script source="EditorScript.as" />
+	<mx:Style source="Editor.css" />
+	
+	<mx:VBox id="appBox" paddingTop="10" paddingLeft="10" >
+
+		<mx:ApplicationControlBar id="menuBar" dock="true" >
+			<mx:MenuBar labelField="@label" itemClick="menuClicked(event)">
+				<mx:XMLList>
+					<menuitem label="{resourceManager.getString( 'App' , 'File' )}" >
+						<menuitem label="{resourceManager.getString( 'App' , 'New' )}" action="New" />
+						<menuitem label="{resourceManager.getString( 'App' , 'Load' )}" action="AirLoad"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'Save' )}" action="AirSave"/>
+					</menuitem>
+					<menuitem label="{resourceManager.getString( 'App' , 'Edit' )}" >
+						<menuitem label="{resourceManager.getString( 'App' , 'Undo' )}"  action="Undo"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'Redo' )}" action="Redo"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'Copy' )}"  action="Copy"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'Paste' )}" action="Paste"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'CopyStyle' )}" action="CopyStyle"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'PasteStyle' )}" action="PasteStyle"/>
+					</menuitem>
+					<menuitem label="{resourceManager.getString( 'App' , 'Item' )}" >
+						<menuitem label="{resourceManager.getString( 'App' , 'Group' )}" action="Group"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'UnGroup' )}"  action="UnGroup"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'BringToFront' )}"  action="BringToFront"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'SendToBack' )}"  action="SendToBack"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'SetClipping' )}"  action="SetClipping"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'removeClipping' )}"  action="removeClipping"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'Outline' )}"  action="Outline"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'Delete' )}"  action="Delete"/>
+					</menuitem>
+					<menuitem label="{resourceManager.getString( 'App' , 'Path' )}" >
+						<menuitem label="{resourceManager.getString( 'App' , 'ConvertToPath' )}" action="ConvertToPath" />
+						<menuitem label="{resourceManager.getString( 'App' , 'MixPath' )}"  action="MixPath"/>
+						<menuitem type="separator"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'DeleteEditPoint' )}"  action="DeleteEditPoint"/>
+						<menuitem label="{resourceManager.getString( 'App' , 'DeleteControlPoint' )}"  action="DeleteControlPoint"/>
+					</menuitem>
+				</mx:XMLList>
+			</mx:MenuBar>
+			<button:IgnoreKeyButton id="panBtn" styleName="pan" click="toggleDragStage()" /> 
+			<mx:HSlider id="zoomSlider" minimum=".5" maximum="10" snapInterval=".1" value="1" liveDragging="true" change="resize(event);" />
+			<mx:Button styleName="help" click="showInfoPanel( 'help' );" />
+		</mx:ApplicationControlBar>
+		
+		<mx:UIComponent id="mainCanvas" width="100%" height="100%" />
+		
+	</mx:VBox>
+		
+	<service:Explorer id="svc" load="onLoad(event)" save="onSave(event)" failed="onFault(event)" />
+	
+</mx:WindowedApplication>

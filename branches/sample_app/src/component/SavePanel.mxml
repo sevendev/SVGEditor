@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="component.InfoPanel" 
+	horizontalAlign="center"
+	paddingBottom="10"
+	title="@Resource(key='SaveData', bundle='Panel')">
+	
+	<mx:Metadata>
+        [Event(name="onSaveClick", type="event.InfoPanelEvent")]
+		[Event(name="onClose", type="event.InfoPanelEvent")]
+	</mx:Metadata>
+
+	<mx:Script><![CDATA[
+		
+		import event.InfoPanelEvent;
+			
+		public function saveData():void 
+		{
+			var e:InfoPanelEvent = new InfoPanelEvent( InfoPanelEvent.ON_SAVE_CLICK );
+			e.title = titleField.text;
+			dispatchEvent( e );
+		}
+		
+		public function cancelSave():void 
+		{
+			dispatchEvent( new InfoPanelEvent( InfoPanelEvent.ON_CLOSE ) );
+		}
+	
+	]]></mx:Script>
+	
+	<mx:Form>
+		
+		<mx:FormItem label="@Resource(key='Title', bundle='Panel')">
+			<mx:TextInput id="titleField" />
+		</mx:FormItem>
+		
+	</mx:Form>
+	
+	<mx:HBox>
+		<mx:Button id="saveButton" label="@Resource(key='Save', bundle='Panel')" click="saveData()" />
+		<mx:Button id="cancelButton" label="@Resource(key='Cancel', bundle='Panel')" click="cancelSave()" />
+	</mx:HBox>
+	
+</mx:TitleWindow>

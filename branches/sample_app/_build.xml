@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<project name="SvgEditor" default="main" basedir=".">
+
+	<property name="FLEX_HOME" value="path to flex 3.5"/>
+	<property name="APP_ROOT" value="src"/>
+	<property name="DEPLOY_DIR" value="bin"/>
+	<property name="LIB_DIR" value="lib"/>
+    <property name="DOC_DIR" value="doc"/>
+    
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
+	
+ 	<target name="main" >
+        <mxmlc file="${APP_ROOT}/Editor.mxml" 
+        keep-generated-actionscript="true" 
+        optimize="true" 
+        static-rsls="true" 
+        link-report="${basedir}/link-report.xml" 
+        output="${DEPLOY_DIR}/svgeditor.swf">
+        
+            <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+            <load-config filename="${basedir}/flexconfig.xml"/>
+            <source-path path-element="${FLEX_HOME}/frameworks"/>
+
+            <source-path>locale/{locale}</source-path>
+			<locale>en_US</locale>
+            <locale>ja_JP</locale>
+            
+            <compiler.include-libraries dir="${LIB_DIR}" append="true">
+			</compiler.include-libraries>
+			
+        </mxmlc>
+    </target>
+
+</project>

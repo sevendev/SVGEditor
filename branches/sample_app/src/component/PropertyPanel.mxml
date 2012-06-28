@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" styleName="stylePanel">
+	
+	<mx:Metadata>
+        [Event(name="styleChange", type="event.StyleChangeEvent")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+	
+		import mx.events.SliderEvent;
+		import event.StyleChangeEvent;
+		import component.vo.StyleVo;
+		import svgeditor.StyleObject;
+		
+		[Bindable]
+		private var styleVo:StyleVo = new StyleVo();
+		
+		private function resetTransform():void 
+		{
+			var o:StyleObject = new StyleObject();
+			o.matrix = new Matrix();
+			dispatchEvent( new StyleChangeEvent( o , true ) );
+		}
+		
+		private function onAlphaChange( e:SliderEvent ):void 
+		{
+			var o:StyleObject = new StyleObject();
+			o.opacity = e.value;
+			dispatchEvent( new StyleChangeEvent( o , true ) );
+		}
+		
+		private function onBlurChange( e:SliderEvent ):void 
+		{
+			var o:StyleObject = new StyleObject();
+			o.blur = e.value;
+			dispatchEvent( new StyleChangeEvent( o , true ) );
+		}
+		
+		public function get alphaValue():Number { return styleVo.alphaValue; }
+		public function set alphaValue(value:Number):void
+		{
+			styleVo.alphaValue = value;
+		}
+		
+		public function get blurValue():Number { return styleVo.blurValue; }
+		public function set blurValue(value:Number):void 
+		{
+			styleVo.blurValue = value;
+		}
+
+	]]></mx:Script>
+	
+	<mx:Label text="@Resource(key='GlobalOpacity', bundle='Panel')" />
+	<mx:HSlider
+		minimum="0"
+		maximum="1"
+		snapInterval="0.01"
+		width="100%"
+		change="onAlphaChange(event)"
+		id="objectAlpha"
+		liveDragging="true"
+		tickInterval="0.5"
+		value="{styleVo.alphaValue}"
+	/>
+	<mx:Label text="@Resource(key='Blur', bundle='Panel')" />
+	<mx:HSlider
+		minimum="0"
+		maximum="100"
+		snapInterval=".5"
+		width="100%"
+		change="onBlurChange(event)"
+		id="objectBlur"
+		liveDragging="true"
+		tickInterval="50"
+		value="{styleVo.blurValue}"
+	/>
+	<mx:Button 
+		label="@Resource(key='ResetTransform', bundle='Panel')" 
+		click="resetTransform();" 
+	/>
+	
+</mx:VBox>

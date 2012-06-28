@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:color="component.color.*" 
+	remove="exit()"
+	>
+		
+	<mx:Metadata>
+        [Event(name="change", type="flash.events.Event")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+		
+		import flash.display.GradientType;
+		import flash.display.Sprite;
+		import flash.events.Event;
+		import flash.events.MouseEvent;
+		import flash.geom.ColorTransform;
+		import flash.geom.Matrix;
+		import flash.ui.ContextMenu;
+		import flash.ui.ContextMenuItem;
+		import flash.events.ContextMenuEvent;
+		import mx.events.ColorPickerEvent;
+		import mx.events.SliderEvent;
+		import svgeditor.parser.IGradient;
+		import svgeditor.parser.LinearGradient;
+		import svgeditor.ui.RemovableDragItem;
+		import svgeditor.parser.model.PersistentData;
+		import component.color.gradient.GradientVo;
+		import component.color.gradient.GradientManager;
+		
+		private var barWidth:Number = 170;
+		private var barHeight:Number = 25;
+		private var xOffset:Number = 5;
+		private var g:IGradient;
+		private var gradationScr:Sprite;
+		private var lineScr:Sprite;
+		private var manager:GradientManager;
+		private var _currentIcon:Sprite;
+		
+		public function setGradient( g:IGradient ):void 
+		{
+			if ( !g ) {
+				g = new LinearGradient();
+				g.newPrimitive();
+			}
+			if ( !gradationScr ) 
+			{
+				gradationScr = new Sprite();
+				gradatinPane.addChild( gradationScr );
+				lineScr = new Sprite();
+				gradatinPane.addChild( lineScr );
+				gradationScr.x = lineScr.x = xOffset;
+				gradatinPane.doubleClickEnabled = true;
+				gradatinPane.addEventListener( MouseEvent.DOUBLE_CLICK, addGradientColor );
+			}
+			typeRadial.selected = ( g.type == GradientType.RADIAL );
+			typeLinear.selected = ( g.type == GradientType.LINEAR );
+			this.g = g;
+
+			manager = new GradientManager();
+			var colors:Array = g.colors;
+			var alphas:Array = g.alphas;
+			var ratios:Array = g.ratios;
+			var length:Number = colors.length;
+			for ( var i:int = 0; i < length ; i++ ) 
+			{
+				var xpos:Number = barWidth * g.ratios[i] / 255  ;
+				var icon:Sprite = createRatioIcon( xpos );
+				manager[ icon ] = new GradientVo( i, colors[i], alphas[i], ratios[i] );
+			}
+			
+			currentIcon = icon;
+			drawGradation();
+			createRightMenu();
+		}
+		
+		public function exit():void
+		{
+			if ( !lineScr ) return;
+			var numIcons:int = lineScr.numChildren;
+			for ( var i:int = 0 ; i < numIcons ; i++ ) 
+			{
+				lineScr.getChildAt(i).removeEventListener( MouseEvent.MOUSE_DOWN, onIconSelected );
+			}
+		}
+		
+		public function getGradient():IGradient 
+		{
+			return g;
+		}
+		
+		private function drawGradation():void 
+		{
+			var mat:Matrix = new Matrix();
+			mat.createGradientBox( barWidth, barHeight, 0, 0, 0);
+			gradationScr.graphics.clear();
+			gradationScr.graphics.lineStyle( 1, 0xcccccc, 1 );
+			gradationScr.graphics.beginGradientFill( GradientType.LINEAR, manager.getColors(), manager.getAlphas() , manager.getRatios(), mat  );
+			gradationScr.graphics.drawRect( 0 , 0, barWidth, barHeight );
+			gradationScr.graphics.endFill();
+		}
+		
+		private function addGradientColor( e:MouseEvent ):void 
+		{
+			var per:Number = e.localX / barWidth * 255;
+			var id:uint = manager.getNextId();
+			var icon:Sprite = createRatioIcon( e.localX );
+			manager[ icon ] =  new GradientVo( id, gradColor.rgbValue, gradAlpha.value, per );
+			currentIcon = icon;
+			onGradChange();
+		}
+		
+		private function removeGradientColor():void 
+		{
+			currentIcon.removeEventListener( MouseEvent.MOUSE_DOWN, onIconSelected );
+			lineScr.removeChild( currentIcon );
+			delete manager[ currentIcon ];
+			currentIcon = lineScr.getChildAt(0) as Sprite;
+			onGradChange();
+		}
+		
+		private function onGradChange():void
+		{
+			var id:int = manager[ currentIcon ].id;
+			manager[ currentIcon ].offset = currentIcon.x / barWidth * 255;
+			drawGradation();
+			
+			g.colors = manager.getColors();
+			g.alphas = manager.getAlphas();
+			g.ratios = manager.getRatios();
+			
+			dispatchEvent( new Event( Event.CHANGE ) );
+		}
+		
+		private function createRatioIcon( px:Number ):Sprite
+		{
+			var ratioIcon:Sprite = new Sprite();
+			ratioIcon.graphics.lineStyle( 5, 0,0 );
+			ratioIcon.graphics.beginFill( 0xcccccc, 1 );
+			ratioIcon.graphics.drawRect( 0, -barHeight  , 1 , barHeight );
+			ratioIcon.graphics.endFill();
+			ratioIcon.graphics.lineStyle( 5, 0, 0 );
+			ratioIcon.graphics.beginFill( 0xcccccc, 1 );
+			ratioIcon.graphics.drawCircle( 0, 0, 4 );
+			ratioIcon.graphics.endFill();
+			ratioIcon.x = px;
+			ratioIcon.y = barHeight;
+			ratioIcon.cacheAsBitmap = true;
+			ratioIcon.mouseEnabled = true;
+			ratioIcon.addEventListener( MouseEvent.MOUSE_DOWN, onIconSelected );
+			lineScr.addChild( ratioIcon );
+			return ratioIcon;
+		}
+		
+		private function onIconSelected( e:MouseEvent ):void
+		{
+			currentIcon = e.currentTarget as Sprite;
+			gradColor.rgbValue = manager[ currentIcon ].color;
+			gradAlpha.value = manager[ currentIcon ].alpha;
+			this.stage.addEventListener( MouseEvent.MOUSE_MOVE, onIconEdited );
+			this.stage.addEventListener( MouseEvent.MOUSE_UP, onIconReleased );
+		}
+		
+		private function onIconEdited( e:MouseEvent ):void 
+		{
+			if( lineScr.mouseX > 0 && lineScr.mouseX < barWidth )
+				currentIcon.x = lineScr.mouseX;
+				
+			onGradChange();
+		}
+		
+		private function onIconReleased( e:MouseEvent ):void 
+		{
+			this.stage.removeEventListener( MouseEvent.MOUSE_MOVE, onIconEdited );
+			this.stage.removeEventListener( MouseEvent.MOUSE_UP, onIconReleased );
+		}
+		
+		private function onColorChange( e:ColorPickerEvent ):void 
+		{
+			if ( !currentIcon ) return;
+			manager[ currentIcon ].color = e.color;
+			onGradChange();
+		}
+		
+		private function onAlphaChange( e:SliderEvent ):void 
+		{
+			if ( !currentIcon ) return;
+			manager[ currentIcon ].alpha = e.currentTarget.value;
+			onGradChange();
+		}
+		
+		private function onTypeChange( type:String ):void 
+		{
+			if ( 	( type == "radial" && g.type == GradientType.LINEAR ) ||
+					( type == "linear" && g.type == GradientType.RADIAL ) )
+				g = g.convert();
+				
+			onGradChange();
+		}
+		
+		private function createRightMenu():void {
+			var menu:ContextMenu = new ContextMenu();
+			menu.hideBuiltInItems();
+			var item1:ContextMenuItem = new ContextMenuItem( "Delete Selected Color" );
+			item1.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, menu1Handler );
+			menu.customItems = [ item1 ];
+			this.contextMenu = menu;
+		}
+		
+		private function menu1Handler( e:ContextMenuEvent ) :void
+		{
+			removeGradientColor();
+		}
+		
+		private function get currentIcon():Sprite{ return _currentIcon; }
+		private function set currentIcon( c:Sprite ):void
+		{
+			if ( _currentIcon )
+				_currentIcon.transform.colorTransform = new ColorTransform();
+			
+			_currentIcon = c;
+			var cTrans:ColorTransform = new ColorTransform();
+			cTrans.redOffset = 100;
+			currentIcon.transform.colorTransform = cTrans;
+			
+			gradColor.rgbValue = manager[ currentIcon ].color;
+			gradAlpha.value = manager[ currentIcon ].alpha;
+		}
+		
+		
+	]]></mx:Script>
+	
+	<mx:UIComponent id="gradatinPane" width="100%" height="30" />
+	<color:ColorWheelSet id="gradColor" change="onColorChange(event);" />
+	<mx:Label text="@Resource(key='Opacity', bundle='Panel')" />
+	<mx:HSlider
+			minimum="0"
+			maximum="1"
+			snapInterval="0.01"
+			width="{gradColor.width}"
+			change="onAlphaChange(event)"
+			id="gradAlpha"
+			liveDragging="true"
+			tickInterval="0.5"
+			value="1"
+		/>
+	<mx:HBox>
+		<mx:RadioButton id="typeRadial" groupName="GradientTypeGrp" label="@Resource(key='Radial', bundle='Panel')" change="onTypeChange('radial')" />
+		<mx:RadioButton id="typeLinear" groupName="GradientTypeGrp" label="@Resource(key='Linear', bundle='Panel')" change="onTypeChange('linear')" />
+	</mx:HBox>
+</mx:VBox>

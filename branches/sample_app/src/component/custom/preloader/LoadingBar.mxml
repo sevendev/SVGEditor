@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:lib="component.custom.preloader.*" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	
+	<mx:Script><![CDATA[
+		
+		[Bindable]
+		private var _labelText:String;
+		
+		public function set labelText(value:String):void 
+		{
+			_labelText = value;
+		}
+	
+	]]></mx:Script>
+	
+	<lib:CenterProgressBar indeterminate="true" 
+		label="{_labelText}" 
+		indeterminateMoveInterval="25" 
+		width="200" 
+	/>
+	
+</mx:HBox>

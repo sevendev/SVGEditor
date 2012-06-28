@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="init()"  
+	removedFromStage="onRemove()"
+	>
+	
+	<mx:Script><![CDATA[
+	import flash.display.Sprite;
+	import flash.events.MouseEvent;
+	import flash.display.GraphicsPathCommand;
+	import flash.geom.Point;
+	
+	public static const iconSize:Number = 10;
+	public static const iconColor:uint = 0xcccccc;
+	public static const iconPadding:Number = 2;
+	
+	private var resizeIcon:Sprite;
+	private var clickPoint:Point;
+	
+	public function init():void 
+	{
+		createResizeIcon();
+	}
+	
+	private function createResizeIcon():void 
+	{
+		resizeIcon = new Sprite();
+		var sCommand:Vector.<int> = Vector.<int>([ GraphicsPathCommand.MOVE_TO, GraphicsPathCommand.LINE_TO, GraphicsPathCommand.LINE_TO ]);
+		var sVertice:Vector.<Number> = Vector.<Number>([ iconSize , 0, 0, iconSize, iconSize , iconSize]);
+		resizeIcon.graphics.clear();
+		resizeIcon.graphics.lineStyle( iconPadding , 0, 0 );
+		resizeIcon.graphics.beginFill( iconColor , 1 );
+		resizeIcon.graphics.drawPath( sCommand, sVertice );
+		resizeIcon.graphics.endFill();
+		resizeIcon.x = this.width - iconSize - iconPadding;
+		resizeIcon.y = this.height - iconSize - iconPadding;
+		resizeIcon.addEventListener( MouseEvent.MOUSE_DOWN, dragIcon );
+		this.rawChildren.addChild( resizeIcon );
+	}
+	
+	private function dragIcon( e:MouseEvent ) :void 
+	{
+		clickPoint = new Point( resizeIcon.mouseY, resizeIcon.mouseY );
+		this.stage.addEventListener( MouseEvent.MOUSE_MOVE, onDragging );
+		this.stage.addEventListener( MouseEvent.MOUSE_UP, onDragFinish );
+	}
+	
+	private function onDragging( e:MouseEvent ) :void 
+	{
+		resizeIcon.x = this.mouseX - clickPoint.x;
+		resizeIcon.y = this.mouseY - clickPoint.y;
+		this.width = resizeIcon.x + iconSize + iconPadding;
+		this.height = resizeIcon.y + iconSize + iconPadding;
+	}
+	
+	private function onDragFinish( e:MouseEvent ) :void 
+	{
+		if ( !this.stage ) return;
+		this.stage.removeEventListener( MouseEvent.MOUSE_MOVE, onDragging );
+		this.stage.removeEventListener( MouseEvent.MOUSE_MOVE, onDragging );
+	}
+	
+	private function onRemove():void
+	{
+		this.rawChildren.removeChild( resizeIcon );
+		resizeIcon.removeEventListener( MouseEvent.MOUSE_DOWN, dragIcon );
+		this.stage.removeEventListener( MouseEvent.MOUSE_MOVE, onDragging );
+		this.stage.removeEventListener( MouseEvent.MOUSE_MOVE, onDragging );
+	}
+	
+	]]></mx:Script>
+	
+	
+</mx:TitleWindow>

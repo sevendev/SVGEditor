@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<application xmlns="http://ns.adobe.com/air/application/1.5.3">
+	
+	<id>00</id> 
+	<version>0.2</version> 
+	<filename>Svg Editor</filename> 
+	
+	<name>SvgEditorAir</name> 
+	<copyright></copyright> 
+	
+	<initialWindow> 
+		<title>SvgEditorAir</title> 
+		<content>svgeditorAir.swf</content> 
+		<systemChrome>standard</systemChrome> 
+		<transparent>false</transparent> 
+		<visible>true</visible> 
+		<minimizable>true</minimizable> 
+		<maximizable>true</maximizable> 
+		<resizable>true</resizable> 
+	</initialWindow> 
+	
+	<icon>
+      	<image16x16>icon/16.png</image16x16>
+      	<image32x32>icon/32.png</image32x32>
+      	<image48x48>icon/48.png</image48x48>
+      	<image128x128>icon/128.png</image128x128> 
+     </icon>
+	
+</application>

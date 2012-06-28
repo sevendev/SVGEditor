@@ -1,0 +1,125 @@
+﻿Application{
+   themeColor: #6296ca;
+   color: #333333;	
+}
+
+TitleWindow{
+   borderColor: #f9f9f9;
+   borderAlpha: 0.7;
+   roundedBottomCorners: true;
+   cornerRadius: 6;
+   headerHeight: 15;
+   shadowDirection: right;
+   titleStyleName: "titleWinTitle";
+   horizontalAlign: center;
+}
+
+.titleWinTitle {
+   color: #444444;
+   fontSize: 10;
+}
+
+Panel{
+   borderColor: #f9f9f9;
+   borderAlpha: 0.7;
+   roundedBottomCorners: true;
+   cornerRadius: 6;
+   headerHeight: 15;
+   shadowDirection: right;
+   titleStyleName: "titleWinTitle";
+   horizontalAlign: center;
+}
+
+ApplicationControlBar {
+	cornerRadius: 18;
+   shadowDistance: 1;
+}
+
+MenuBar {
+   backgroundSkin : ClassReference("component.custom.skin.MenuBarNoBorderSkin");
+   itemDownSkin : ClassReference("component.custom.skin.MenuBarActiveSkin");
+}
+
+Accordion.strokePanel{
+   borderStyle: none;
+   fillColors: #ffffff, #b5b5b5, #ffffff, #9d9d9d;
+   selectedFillColors: #e2e9ec, #7a969e;
+}
+
+ProgressBar {
+   barColor: #cccccc;
+}
+
+Button {
+   cornerRadius: 12;
+   fillColors: #ffffff, #ffffff, #ffffff, #ffffff;
+   themeColor: #66cccc;
+   textRollOverColor: #6296ca;
+}
+
+LinkButton {
+   color: #6296ca;
+   cornerRadius: 1;
+}
+
+Alert {
+	messageStyleName: "alertMessage";
+	backgroundAlpha: 0.6;
+	backgroundColor: #ffffff;
+	borderAlpha: 0.6;
+	borderColor: #ffffff;
+	dropShadowEnabled: true;
+}
+.alertMessage {
+	letterSpacing: 0;
+	fontSize: 10;
+	fontWeight: normal;
+	color: black;
+}
+
+TabNavigator {
+	paddingLeft: 3;
+	paddingRight: 3;
+}
+
+ToolTip {
+   cornerRadius: 0;
+   backgroundColor: #999999;
+   color: #ffffff;
+}
+
+Button.gallery {
+   cornerRadius: 10;
+   highlightAlphas: 0.9, 0.46;
+   fillAlphas: 0.88, 0.82, 0.73, 0.79;
+   fillColors: #333333, #999999, #c2d6e1, #86a4b3;
+   color: #ffffff;
+   textRollOverColor: #1b0e61;
+   themeColor: #3399ff;
+}
+
+Panel.tool{
+	borderThickness:0;
+	cornerRadius:3; 
+	paddingLeft:0; 
+	paddingRight:0;
+	backgroundAlpha:.8;
+	borderStyle:solid;
+}
+
+Button.help {
+   upSkin: Embed(source='asset/helpButton/upskin.png');
+   downSkin: Embed(source='asset/helpButton/overskin.png');
+   overSkin: Embed(source='asset/helpButton/overskin.png');
+   disabled: Embed(source='asset/helpButton/upskin.png');
+}
+
+Button.pan {
+   upSkin: Embed(source='asset/interface/pan.png');
+   downSkin: Embed(source='asset/interface/pan.png');
+   overSkin: Embed(source='asset/interface/pan.png');
+   disabled: Embed(source='asset/interface/pan.png');
+   selectedUpSkin: Embed(source='asset/interface/pan_sel.png');
+   selectedDownSkin: Embed(source='asset/interface/pan_sel.png');
+   selectedOverSkin: Embed(source='asset/interface/pan_sel.png');
+}

@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:button="component.custom.button.*"
+	layout="vertical" 
+	styleName="tool"
+	creationComplete="init()" >
+	
+	<mx:Metadata>
+		[Event(name="createItem", type="event.ToolPaletteEvent")]
+		[Event(name="drawPath", type="event.ToolPaletteEvent")]
+		[Event(name="cancelAll", type="event.ToolPaletteEvent")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+	import flash.display.DisplayObject;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import event.ToolPaletteEvent;
+	import mx.controls.Button;
+
+	public function releaseSelection():void
+	{
+		var children:Array = this.getChildren();
+		for each ( var btn:Button in children )
+			btn.selected = false;
+	}
+	
+	private function createItem( type:String , e:MouseEvent ):void 
+	{
+		if( hasSelection() ){
+			releaseSelection();
+			dispatchEvent( new ToolPaletteEvent( ToolPaletteEvent.CANCEL_ALL ) );
+		}
+		var evt:ToolPaletteEvent = new ToolPaletteEvent( ToolPaletteEvent.CREATE_ITEM );
+		evt.itemType = type;
+		dispatchEvent( evt );
+		e.currentTarget.selected = true;
+	}
+	
+	private function drawPath( e:MouseEvent ):void 
+	{
+		if( hasSelection() ){
+			releaseSelection();
+			dispatchEvent( new ToolPaletteEvent( ToolPaletteEvent.CANCEL_ALL ) );
+		}
+		dispatchEvent( new ToolPaletteEvent( ToolPaletteEvent.DRAW_PATH ) );
+		e.currentTarget.selected = true;
+	}
+	
+	private function showCode():void
+	{
+		dispatchEvent( new ToolPaletteEvent( ToolPaletteEvent.CANCEL_ALL ) );
+		dispatchEvent( new ToolPaletteEvent( ToolPaletteEvent.SHOW_CODE ) );
+	}
+	
+	private function hasSelection():Boolean
+	{
+		var children:Array = this.getChildren();
+		for each ( var btn:Button in children )
+			if ( btn.selected ) return true;
+		return false;
+	}
+	
+	private function init():void 
+	{
+		var children:Array = this.getChildren();
+		for each ( var btn:Button in children )
+			btn.label = "";
+	}
+
+	]]></mx:Script>
+	
+	<mx:Style>
+		.toolBtn{
+			 cornerRadius: 8;
+			 fillColors: #FFFFFF, #DDDDDD;
+			 fillAlphas: 0.5, 0.5;
+			 fillColorRatios: 0, 255;
+		}
+	</mx:Style>
+	
+	<button:IgnoreKeyButton label="Draw" click="drawPath(event )" icon="@Embed(source='../asset/interface/draw.png')" styleName="toolBtn" />
+		
+	<button:IgnoreKeyButton label="Path" click="createItem('Path' ,event )" icon="@Embed(source='../asset/interface/path.png')" styleName="toolBtn" />
+	<button:IgnoreKeyButton label="Polygon" click="createItem('Polygon' ,event )" icon="@Embed(source='../asset/interface/polygon.png')" styleName="toolBtn" />
+	<button:IgnoreKeyButton label="Polyline" click="createItem('Polyline' ,event )" icon="@Embed(source='../asset/interface/polyline.png')" styleName="toolBtn"/>	
+	<button:IgnoreKeyButton label="Circle" click="createItem('Circle' ,event )" icon="@Embed(source='../asset/interface/circle.png')" styleName="toolBtn"/>
+	<button:IgnoreKeyButton label="Ellipse" click="createItem('Ellipse' ,event )" icon="@Embed(source='../asset/interface/ellipse.png')" styleName="toolBtn"/>
+	<button:IgnoreKeyButton label="Rect" click="createItem('Rect' ,event )" icon="@Embed(source='../asset/interface/rect.png')" styleName="toolBtn"/>
+	<button:IgnoreKeyButton label="Line" click="createItem('Line' ,event )" icon="@Embed(source='../asset/interface/line.png')" styleName="toolBtn"/>
+	<button:IgnoreKeyButton label="Image" click="createItem('Image' ,event )" icon="@Embed(source='../asset/interface/image.png')" styleName="toolBtn"/>
+	<button:IgnoreKeyButton label="Text" click="createItem('Text' ,event )" icon="@Embed(source='../asset/interface/text.png')" styleName="toolBtn"/>
+	
+	<button:IgnoreKeyButton label="Code" click="showCode()" icon="@Embed(source='../asset/interface/svg.png')" styleName="toolBtn"/>
+	
+</mx:Panel>

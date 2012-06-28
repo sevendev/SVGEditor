@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<window:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="component.InfoPanel" 
+	xmlns:window="component.custom.window.*" 
+	width="480" 
+	height="380" 
+	creationComplete="showCode();"
+	title="@Resource(key='CodeTitle', bundle='Panel')">
+		
+	<mx:Metadata>
+		[Event(name="onClose", type="event.InfoPanelEvent")]
+		[Event(name="onCodeChange", type="event.InfoPanelEvent")]
+	</mx:Metadata>
+	
+	<mx:Script><![CDATA[
+		
+		import mx.core.Application;
+		import event.InfoPanelEvent;
+		import svgeditor.SvgEditor;
+		
+		private function showCode():void
+		{
+			var editor:SvgEditor = Application.application.editor;
+			codeDisplay.text = editor.export().toXMLString();
+		}
+		
+		private function applyCodeChange():void
+		{
+			var evt:InfoPanelEvent = new InfoPanelEvent( InfoPanelEvent.ON_CODE_CHANGE );
+			evt.code = codeDisplay.text;
+			dispatchEvent( evt );
+		}
+		
+		private function onClose():void 
+		{
+			dispatchEvent( new InfoPanelEvent( InfoPanelEvent.ON_CLOSE ) );
+		}
+	
+	]]></mx:Script>
+		
+	<mx:TextArea id="codeDisplay" width="100%" height="100%" />
+	
+	<mx:HBox>
+		<mx:Button label="@Resource(key='CodeChange', bundle='Panel')" click="applyCodeChange()" />
+		<mx:Button label="@Resource(key='Close', bundle='Panel')" click="onClose()" />
+	</mx:HBox>
+	
+</window:ResizableTitleWindow>
